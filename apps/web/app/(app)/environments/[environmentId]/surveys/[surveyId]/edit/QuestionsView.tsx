@@ -41,6 +41,7 @@ export default function QuestionsView({
   }, []);
 
   const [backButtonLabel, setbackButtonLabel] = useState(null);
+  const [isFallBackSuggestionOpen, setIsFallBackSuggestionOpen] = useState(false);
 
   const handleQuestionLogicChange = (
     survey: TSurveyWithAnalytics,
@@ -99,6 +100,13 @@ export default function QuestionsView({
       ...updatedAttributes,
     };
 
+    // If user types @ at the end of the headline, then we show a fallback questions suggestion
+    if (
+      updatedAttributes?.headline?.indexOf("@") != -1 &&
+      updatedAttributes?.headline?.indexOf("@") == updatedAttributes?.headline?.length - 1
+    ) {
+      setIsFallBackSuggestionOpen(true);
+    }
     if ("backButtonLabel" in updatedAttributes) {
       updatedSurvey.questions.forEach((question) => {
         question.backButtonLabel = updatedAttributes.backButtonLabel;
@@ -203,6 +211,8 @@ export default function QuestionsView({
                     deleteQuestion={deleteQuestion}
                     activeQuestionId={activeQuestionId}
                     setActiveQuestionId={setActiveQuestionId}
+                    isFallBackSuggestionOpen={isFallBackSuggestionOpen}
+                    setIsFallBackSuggestionOpen={setIsFallBackSuggestionOpen}
                     lastQuestion={questionIdx === localSurvey.questions.length - 1}
                     isInValid={invalidQuestions ? invalidQuestions.includes(question.id) : false}
                   />

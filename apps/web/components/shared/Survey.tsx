@@ -107,6 +107,7 @@ export const SurveyModal = ({
       autoFocus,
       isRedirectDisabled,
     });
+    console.log(survey);
   }, [
     activeQuestionId,
     brandColor,

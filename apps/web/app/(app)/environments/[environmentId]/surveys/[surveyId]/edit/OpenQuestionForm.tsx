@@ -1,19 +1,8 @@
-import {
-  TSurveyOpenTextQuestion,
-  TSurveyOpenTextQuestionInputType,
-  TSurveyWithAnalytics,
-} from "@formbricks/types/v1/surveys";
-import { Button, Input, Label, QuestionTypeSelector } from "@formbricks/ui";
-import { PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
+import FallBackQuestionSuggestion from "@/app/(app)/environments/[environmentId]/surveys/[surveyId]/edit/FallBackQuestionsSuggestion";
+import { TSurveyOpenTextQuestion, TSurveyWithAnalytics } from "@formbricks/types/v1/surveys";
+import { Button, Input, Label } from "@formbricks/ui";
+import { TrashIcon, PlusIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
-
-const questionTypes = [
-  { value: "text", label: "Text" },
-  { value: "email", label: "Email" },
-  { value: "url", label: "URL" },
-  { value: "number", label: "Number" },
-  { value: "phone", label: "Phone" },
-];
 
 interface OpenQuestionFormProps {
   localSurvey: TSurveyWithAnalytics;
@@ -22,25 +11,21 @@ interface OpenQuestionFormProps {
   updateQuestion: (questionIdx: number, updatedAttributes: any) => void;
   lastQuestion: boolean;
   isInValid: boolean;
+  isFallBackSuggestionOpen: boolean;
+  setIsFallBackSuggestionOpen: (isFallBackSuggestionOpen: boolean) => void;
 }
 
 export default function OpenQuestionForm({
+  localSurvey,
   question,
   questionIdx,
   updateQuestion,
   isInValid,
+  isFallBackSuggestionOpen,
+  setIsFallBackSuggestionOpen,
 }: OpenQuestionFormProps): JSX.Element {
   const [showSubheader, setShowSubheader] = useState(!!question.subheader);
-  const defaultPlaceholder = getPlaceholderByInputType(question.inputType ?? "text");
-
-  const handleInputChange = (inputType: TSurveyOpenTextQuestionInputType) => {
-    const updatedAttributes = {
-      inputType: inputType,
-      placeholder: getPlaceholderByInputType(inputType),
-      longAnswer: inputType === "text" ? question.longAnswer : false,
-    };
-    updateQuestion(questionIdx, updatedAttributes);
-  };
+  const [cursorPosition, setCursorPosition] = useState(0);
 
   return (
     <form>
@@ -52,10 +37,26 @@ export default function OpenQuestionForm({
             id="headline"
             name="headline"
             value={question.headline}
-            onChange={(e) => updateQuestion(questionIdx, { headline: e.target.value })}
+            onChange={(e) => {
+              updateQuestion(questionIdx, { headline: e.target.value });
+              setCursorPosition(e.target.selectionStart as number);
+            }}
+            onFocus={(e) => {
+              setCursorPosition(e.target.selectionStart as number);
+            }}
+            // onBlur={(e)=>setIsFallBackSuggestionOpen(false)}
             isInvalid={isInValid && question.headline.trim() === ""}
           />
         </div>
+        {isFallBackSuggestionOpen && (
+          <FallBackQuestionSuggestion
+            localSurvey={localSurvey}
+            questionIdx={questionIdx}
+            updateQuestion={updateQuestion}
+            cursorPosition={cursorPosition}
+            setIsFallBackSuggestionOpen={setIsFallBackSuggestionOpen}
+          />
+        )}
       </div>
 
       <div className="mt-3">
@@ -93,38 +94,11 @@ export default function OpenQuestionForm({
           <Input
             id="placeholder"
             name="placeholder"
-            value={question.placeholder ?? defaultPlaceholder}
+            value={question.placeholder}
             onChange={(e) => updateQuestion(questionIdx, { placeholder: e.target.value })}
-          />
-        </div>
-      </div>
-
-      {/* Add a dropdown to select the question type */}
-      <div className="mt-3">
-        <Label htmlFor="questionType">Input Type</Label>
-        <div className="mt-2 flex items-center">
-          <QuestionTypeSelector
-            questionTypes={questionTypes}
-            currentType={question.inputType}
-            handleTypeChange={handleInputChange} // Use the merged function
           />
         </div>
       </div>
     </form>
   );
-}
-
-function getPlaceholderByInputType(inputType: TSurveyOpenTextQuestionInputType) {
-  switch (inputType) {
-    case "email":
-      return "example@email.com";
-    case "url":
-      return "http://...";
-    case "number":
-      return "42";
-    case "phone":
-      return "+1 123 456 789";
-    default:
-      return "Type your answer here...";
-  }
 }

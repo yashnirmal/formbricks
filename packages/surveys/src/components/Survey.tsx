@@ -72,6 +72,32 @@ export function Survey({
     setResponseData(updatedResponseData);
   };
 
+  function getRecalledQuestion(question: any) {
+    const newQuestion = { ...question };
+    let inputString = newQuestion.headline;
+    let pattern = /\[recall:([^\/]+)\/fallback:([^[\]]+)]/;
+    let match = inputString.match(pattern);
+
+    if (match) {
+      let id = match[1];
+      let fallback = match[2];
+
+      if (history.includes(id)) {
+        const finalId = Object.keys(responseData).filter((key) => {
+          return key === id;
+        })[0];
+        let ans = responseData[finalId] || fallback;
+        if (!ans) {
+          ans = fallback;
+        }
+        if (newQuestion.id === questionId) {
+          newQuestion.headline = newQuestion.headline.replace(pattern, ans);
+        }
+      }
+    }
+    return newQuestion;
+  }
+
   const onSubmit = (responseData: TResponseData) => {
     setLoadingElement(true);
     const nextQuestionId = getNextQuestionId(responseData);
@@ -122,7 +148,7 @@ export function Survey({
                 (question, idx) =>
                   questionId === question.id && (
                     <QuestionConditional
-                      question={question}
+                      question={getRecalledQuestion(question)}
                       value={responseData[question.id]}
                       onChange={onChange}
                       onSubmit={onSubmit}

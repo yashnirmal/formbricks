@@ -38,6 +38,8 @@ interface QuestionCardProps {
   duplicateQuestion: (questionIdx: number) => void;
   activeQuestionId: string | null;
   setActiveQuestionId: (questionId: string | null) => void;
+  isFallBackSuggestionOpen: boolean;
+  setIsFallBackSuggestionOpen: (isFallBackSuggestionOpen: boolean) => void;
   lastQuestion: boolean;
   isInValid: boolean;
 }
@@ -77,6 +79,8 @@ export default function QuestionCard({
   deleteQuestion,
   activeQuestionId,
   setActiveQuestionId,
+  isFallBackSuggestionOpen,
+  setIsFallBackSuggestionOpen,
   lastQuestion,
   isInValid,
 }: QuestionCardProps) {
@@ -167,6 +171,8 @@ export default function QuestionCard({
                   updateQuestion={updateQuestion}
                   lastQuestion={lastQuestion}
                   isInValid={isInValid}
+                  isFallBackSuggestionOpen={isFallBackSuggestionOpen}
+                  setIsFallBackSuggestionOpen={setIsFallBackSuggestionOpen}
                 />
               ) : question.type === QuestionType.MultipleChoiceSingle ? (
                 <MultipleChoiceSingleForm
