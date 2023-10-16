@@ -2,6 +2,7 @@ import { TSurveyWithAnalytics } from "@formbricks/types/v1/surveys";
 import { useState } from "react";
 import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/24/solid";
 import { Button, Input } from "@formbricks/ui";
+import { X } from "lucide-react";
 
 interface FallBackQuestionsSuggestionProps {
   localSurvey: TSurveyWithAnalytics;
@@ -29,6 +30,8 @@ export default function FallBackQuestionSuggestion({
     setIsFallBackAnswerOpen(true);
   }
 
+  console.log(localSurvey);
+
   function addFallBackAnswer() {
     const headline = localSurvey.questions[questionIdx].headline;
 
@@ -48,12 +51,23 @@ export default function FallBackQuestionSuggestion({
 
   return (
     <div className="absolute z-50 mr-4 flex w-full max-w-[400px] flex-col items-start rounded-sm bg-white shadow-lg">
-      <p className="px-6 py-2 text-sm font-semibold text-slate-700">
-        {!isFallBackAnswerOpen ? "Recall information from..." : "Add a fallback, if the data is missing"}
-      </p>
+      <div className="flex w-full items-center justify-between px-6 py-2">
+        <p className="text-sm font-semibold text-slate-700">
+          {!isFallBackAnswerOpen ? "Recall information from..." : "Add a fallback, if the data is missing"}
+        </p>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            setIsFallBackSuggestionOpen(false);
+            setIsFallBackAnswerOpen(false);
+          }}>
+          <X size={20} />
+        </button>
+      </div>
+
       {!isFallBackAnswerOpen ? (
         <>
-          {localSurvey.questions.map((question) => (
+          {localSurvey.questions?.slice(0, questionIdx).map((question) => (
             <button
               key={question.id}
               onClick={(e) => {

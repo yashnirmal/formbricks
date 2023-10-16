@@ -2,7 +2,7 @@ import FallBackQuestionSuggestion from "@/app/(app)/environments/[environmentId]
 import { TSurveyOpenTextQuestion, TSurveyWithAnalytics } from "@formbricks/types/v1/surveys";
 import { Button, Input, Label } from "@formbricks/ui";
 import { TrashIcon, PlusIcon } from "@heroicons/react/24/solid";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface OpenQuestionFormProps {
   localSurvey: TSurveyWithAnalytics;
@@ -44,7 +44,6 @@ export default function OpenQuestionForm({
             onFocus={(e) => {
               setCursorPosition(e.target.selectionStart as number);
             }}
-            // onBlur={(e)=>setIsFallBackSuggestionOpen(false)}
             isInvalid={isInValid && question.headline.trim() === ""}
           />
         </div>

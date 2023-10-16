@@ -17,7 +17,7 @@ import {
   StarIcon,
 } from "@heroicons/react/24/solid";
 import * as Collapsible from "@radix-ui/react-collapsible";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import CTAQuestionForm from "./CTAQuestionForm";
 import ConsentQuestionForm from "./ConsentQuestionForm";
@@ -87,6 +87,29 @@ export default function QuestionCard({
   const question = localSurvey.questions[questionIdx];
   const open = activeQuestionId === question.id;
   const [openAdvanced, setOpenAdvanced] = useState(question.logic && question.logic.length > 0);
+  const [isInValidRecallId, setIsInValidRecallId] = useState(false);
+
+  useEffect(() => {
+    const regex = /\[recall:([^\/]+)\/fallback:([^[\]]+)]/g;
+    const questionHeadline = localSurvey.questions[questionIdx].headline;
+    // const questionDescription = localSurvey.questions[questionIdx].description
+    let match = regex.exec(questionHeadline);
+    if (!match) {
+      setIsInValidRecallId(false);
+    } else {
+      let temp = true;
+      while (match !== null) {
+        const recallId = match[1];
+        localSurvey.questions.forEach((question) => {
+          if (question.id === recallId) {
+            temp = false;
+          }
+        });
+        match = regex.exec(questionHeadline);
+      }
+      setIsInValidRecallId(temp);
+    }
+  }, [localSurvey.questions]);
 
   return (
     <Draggable draggableId={question.id} index={questionIdx}>
@@ -103,7 +126,7 @@ export default function QuestionCard({
             className={cn(
               open ? "bg-slate-700" : "bg-slate-400",
               "top-0 w-10 rounded-l-lg p-2 text-center text-sm text-white hover:bg-slate-600",
-              isInValid && "bg-red-400  hover:bg-red-600"
+              (isInValid || isInValidRecallId) && "bg-red-400  hover:bg-red-600"
             )}>
             {questionIdx + 1}
           </div>
